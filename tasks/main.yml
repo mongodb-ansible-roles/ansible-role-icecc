@@ -1,0 +1,27 @@
+---
+
+- name: Install icecc package
+  package:
+    name: icecc
+    state: present
+
+- name: Ensure icecc points to the scheduler
+  lineinfile:
+    path: /etc/icecc/icecc.conf
+    regexp: '^ICECC_SCHEDULER_HOST='
+    # line: ICECC_SCHEDULER_HOST="iceccd-scheduler-lb-99c9601e8cbd24a6.elb.us-west-1.amazonaws.com"
+    line: ICECC_SCHEDULER_HOST="{{ icecc_scheduler_hostname }}"
+
+- name: Create a directory for icecc systemd overrides
+  file:
+    path: /etc/systemd/system/iceccd.service.d
+    state: directory
+    mode: '0755'
+
+- name: Copy systemd overrides to systemd
+  copy:
+    src: files/override.conf
+    dest: /etc/systemd/system/iceccd.service.d
+    owner: root
+    group: root
+    mode: '0644'
